@@ -2,7 +2,7 @@
 // Inspired by: https://css-tricks.com/form-validation-part-4-validating-mailChimp-subscribe-form/ 
 
 // Add the novalidate attribute when the JS loads
-var mailChimpForms = document.querySelectorAll( 'form[action*="list-manage.com"].validate' );
+var mailChimpForms = document.querySelectorAll( 'form[id^="mc-embedded"].validate' );
 for ( var i = 0; i < mailChimpForms.length; i++ ) {
 	mailChimpForms[i].setAttribute( 'novalidate', true );
 }
@@ -205,28 +205,28 @@ window.displayMailChimpStatus = function ( data ) {
 	// Handle redirect response ( usually for captcha )
 	if ( data.result === 'redirect' && data.msg === 'captcha' ) {
 		// Get form action URL base ( without the /post-json part )
-		var formAction = document.querySelector( 'form.validate' ).getAttribute( 'action' );
-		if (! formAction) return;
+		var formAction = document.querySelector( 'form[id^="mc-embedded"].validate' ).getAttribute( 'action' );
+		if ( ! formAction ) return;
 
-		// Build the redirect URL with all parameters
+		// Build the submission URL with all parameters
 		var redirectUrl = formAction;
 
 		// Add all params from the response
 		if ( data.params && typeof data.params === 'object' ) {
 			try {
 				var params = Object.entries( data.params )
-					.filter(function(param) {
+					.filter( function( param ) {
 						// Validate param key and value are strings
 						return typeof param[0] === 'string' && typeof param[1] === 'string';
-					})
+					} )
 					.map( function ( param ) {
 						return encodeURIComponent( param[0] ) + '=' + encodeURIComponent( param[1] );
-					}).join( '&' );
+					} ).join( '&' );
 
 				redirectUrl += params;
-			} catch (e) {
+			} catch ( e ) {
 				// If we can't process params safely, don't redirect
-				console.error('Error processing redirect parameters:', e);
+				console.error( 'Error processing redirect parameters:', e );
 				return;
 			}
 		}
@@ -236,15 +236,10 @@ window.displayMailChimpStatus = function ( data ) {
 
 		// Validate the URL before opening
 		try {
-			var url = new URL(redirectUrl);
-			if (! url.hostname.endsWith('list-manage.com')) {
-				console.error('Invalid redirect URL hostname');
-				return;
-			}
 			// Open in new tab/window
 			window.open( redirectUrl, '_blank' );
-		} catch (e) {
-			console.error('Invalid redirect URL:', e);
+		} catch ( e ) {
+			console.error( 'Invalid redirect URL:', e );
 		}
 		return;
 	}
@@ -255,7 +250,7 @@ window.displayMailChimpStatus = function ( data ) {
 		var cleanErrorMsg = data.msg
 			.replace( /^\d+\s*-\s*/, '' ) // Remove ID and dash prefix
 			.trim()
-			.substring(0, 1000); // Limit length for safety
+			.substring( 0, 1000 ); // Limit length for safety
 		
 		// Empty any previous content
 		errorContainer.textContent = '';
@@ -267,7 +262,7 @@ window.displayMailChimpStatus = function ( data ) {
 	}
 
 	// Otherwise, show success message and hide error
-	var successMsg = data.msg.trim().substring(0, 1000); // Limit length
+	var successMsg = data.msg.trim().substring( 0, 1000 ); // Limit length
 	
 	// Empty any previous content
 	successContainer.textContent = '';
@@ -286,7 +281,7 @@ var submitMailChimpForm = function ( form ) {
 	url += serialize( form ) + '&c=displayMailChimpStatus';
 
 	// Yield to the main thread before continuing with form submission
-	setTimeout(function() {
+	setTimeout( function() {
 		// Creates the script with the callback URL.
 		// MailChimp does not currently offer a CORS-enabled endpoint, so we continue
 		// to use the script tag like the official MailChimp script.
@@ -304,12 +299,12 @@ var submitMailChimpForm = function ( form ) {
 		script.onload = function () {
 			this.remove();
 		};
-	}, 0);
+	}, 0 );
 
 };
 
 // Initialize the form validation and submit handlers.
-mailChimpForms.forEach(function(mailChimpForm) {
+mailChimpForms.forEach( function( mailChimpForm ) {
 	// Submit handler.
 	mailChimpForm.addEventListener( 'submit', function ( event ) {
 
@@ -322,15 +317,6 @@ mailChimpForms.forEach(function(mailChimpForm) {
 		// Validate the form targets MailChimp
 		if ( ! actionUrl ) return;
 		
-		// Create a URL object and validate the hostname ends with list-manage.com
-		try {
-			var url = new URL(actionUrl);
-			if (! url.hostname.endsWith('list-manage.com')) return;
-		} catch (e) {
-			// Invalid URL, don't process
-			return;
-		}
-
 		// Prevent form from submitting
 		event.preventDefault();
 
@@ -362,22 +348,22 @@ mailChimpForms.forEach(function(mailChimpForm) {
 	}, false );
 
     // Get all input, select, and textarea elements in the form
-    var fields = mailChimpForm.querySelectorAll('input, select, textarea');
+    var fields = mailChimpForm.querySelectorAll( 'input, select, textarea' );
     
     // Add blur event listener to each field
-    fields.forEach(function(field) {
-        field.addEventListener('blur', function(event) {
+    fields.forEach( function( field ) {
+        field.addEventListener( 'blur', function( event ) {
             // Validate the field
-            var error = hasError(event.target);
+            var error = hasError( event.target );
             
             // If there's an error, show it
-            if (error) {
-                showError(event.target, error);
+            if ( error ) {
+                showError( event.target, error );
                 return;
             }
             
             // Otherwise, remove any existing error message
-            removeError(event.target);
-        });
-    });
-});
+            removeError( event.target );
+        } );
+    } );
+} );

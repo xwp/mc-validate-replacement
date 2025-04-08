@@ -34,7 +34,7 @@ The validation logic is inspired by modern HTML5 form validation and provides us
 
 ## Usage
 
-Once activated, the plugin works automatically. It identifies MailChimp forms (forms with an action URL containing `list-manage.com` and the class `validate`) and applies the custom validation logic.
+Once activated, the plugin works automatically. It identifies MailChimp forms (forms with an ID that starts with `mc-embedded` and the class `validate`) and applies the custom validation logic.
 
 Ensure your MailChimp form HTML includes:
 *   The `validate` class on the `<form>` tag.
@@ -47,7 +47,7 @@ The custom script handles validation on field blur and form submission.
 
 **Does this work with all MailChimp forms?**
 
-It works with standard embedded MailChimp forms that use the `list-manage.com` endpoint and have the `validate` class applied to the form element.
+It works with standard embedded MailChimp forms that have the ID that starts with `mc-embedded` and have the `validate` class applied to the form element. This expands on the selector present in the official mc-validate which targets $("form#mc-embedded-subscribe-form")
 
 **Do I need the original MailChimp script anymore?**
 
